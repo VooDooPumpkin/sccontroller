@@ -1,0 +1,2 @@
+graft sccontroller/templates
+global-exclude *.pyc
