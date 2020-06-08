@@ -8,5 +8,9 @@ setup(
     zip_safe=False,
     install_requires=[
         'flask',
+        'flask-api',
+        'flask-jwt',
+        'py-solc-x',
+        'web3'
     ],
 )
