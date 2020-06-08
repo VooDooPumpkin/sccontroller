@@ -2,16 +2,24 @@ from web3 import Web3
 from solcx import compile_files
 from flask import json, current_app, g
 import os
+import requests
 from .contract import Contract
 from .template import Template
 
 
 class SCContoller:
 
-    def __init__(self, ganache, defaul_account, root_path):
+    def __init__(self, node, defaul_account, root_path):
         """Constructor"""
-        self.w3 = Web3(Web3.HTTPProvider(ganache))
-        self.w3.eth.defaultAccount = self.w3.toChecksumAddress(defaul_account)
+        self.w3 = Web3(Web3.HTTPProvider(node))
+        try:
+            self.w3.eth.blockNumber
+        except requests.exceptions.InvalidSchema:
+            raise ConnectionError("Can not connect to Node '{}'".format(node))
+        try:
+            self.w3.eth.defaultAccount = self.w3.toChecksumAddress(defaul_account)
+        except ValueError:
+            raise ValueError("Invalid account address '{}'".format(defaul_account))
         self.templates_dir = root_path.replace('\\', '/') + '/templates'
 
     @staticmethod

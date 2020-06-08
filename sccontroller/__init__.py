@@ -1,6 +1,7 @@
 import os
 import time
 import copy
+import sqlite3
 from datetime import timedelta
 from threading import Thread
 from flask import json, abort, request, g
@@ -203,6 +204,7 @@ def create_app(test_cfg=None):
         Keyword arguments:
         id -- id of the contract
         """
+
         SCContoller.get_scc().destruct(Contract.by_id(id))
 
         return '', status.HTTP_204_NO_CONTENT
@@ -232,7 +234,17 @@ def create_app(test_cfg=None):
             event_filters = [scc.event_filter(template) for template in Template.all()]
             worker = Thread(target=log_loop, args=(event_filters, 5), daemon=True)
             worker.start()
-        except:
-            pass
+        except sqlite3.DatabaseError:
+            db.init_db()
+            scc = SCContoller.get_scc()
+            event_filters = [scc.event_filter(template) for template in Template.all()]
+            worker = Thread(target=log_loop, args=(event_filters, 5), daemon=True)
+            worker.start()
+        except ConnectionError as e:
+            print(str(e))
+            exit(-1)
+        except ValueError as e:
+            print(str(e))
+            exit(-1)
 
     return app
