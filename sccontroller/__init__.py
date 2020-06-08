@@ -204,10 +204,12 @@ def create_app(test_cfg=None):
         Keyword arguments:
         id -- id of the contract
         """
+        try:
+            SCContoller.get_scc().destruct(Contract.by_id(id))
 
-        SCContoller.get_scc().destruct(Contract.by_id(id))
-
-        return '', status.HTTP_204_NO_CONTENT
+            return '', status.HTTP_204_NO_CONTENT
+        except KeyError as e:
+            abort(status.HTTP_400_BAD_REQUEST, {'message': str(e)})
 
     from . import db, auth, template_controller
     db.init_app(app)
@@ -217,8 +219,11 @@ def create_app(test_cfg=None):
     def handle_event(event):
         status = event['args']['cur_status']
         address = event['address']
-        contract = Contract.by_address(address)
-        contract.set_status(status)
+        try:
+            contract = Contract.by_address(address)
+            contract.set_status(status)
+        except (KeyError, ReferenceError):
+            pass
 
     def log_loop(event_filters, poll_interval):
         with app.app_context():
