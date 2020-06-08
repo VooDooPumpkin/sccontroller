@@ -36,6 +36,41 @@ class SCContoller:
         identifier = '{}:{}'.format(self.templates_dir + '/' + template.filename, template.contract_name)
         if 'refund' in [param['name'] for param in template.parameters_list]:
             parameters['refund'] = self.w3.eth.defaultAccount
+        for param in template.parameters_list:
+            pname = param['name']
+            ptype = param['type']
+            if pname == 'refund':
+                parameters['refund'] = self.w3.eth.defaultAccount
+                continue
+            if pname not in parameters.keys():
+                raise TypeError("Not enough parameters. Expected '{}' parameter".format(pname))
+            if ptype.lower() == 'address':
+                try:
+                    parameters[pname] = self.w3.toChecksumAddress(parameters[pname])
+                finally:
+                    pass
+            elif ptype.lower() == 'string':
+                try:
+                    parameters[pname] = self.w3.toText(parameters[pname])
+                finally:
+                    pass
+            elif ptype.lower() == 'bytes':
+                try:
+                    parameters[pname] = self.w3.toBytes(parameters[pname])
+                finally:
+                    pass
+            elif 'uint' in ptype.lower():
+                try:
+                    parameters[pname] = self.w3.toInt(parameters[pname])
+                finally:
+                    if parameters[pname] < 0:
+                        raise ValueError("Wrong value for uint type '{}'".format(parameters[pname]))
+            elif 'int' in ptype.lower():
+                try:
+                    parameters[pname] = self.w3.toInt(parameters[pname])
+                finally:
+                    pass
+
         contract = Contract(template_id, contract[identifier]['bin'], contract[identifier]['abi'], parameters=parameters)
 
         return contract

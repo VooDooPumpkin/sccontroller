@@ -128,6 +128,8 @@ def create_app(test_cfg=None):
             return {"id": contract.id}, status.HTTP_200_OK
         except KeyError as e:
             abort(status.HTTP_400_BAD_REQUEST, {'message': str(e)})
+        except ValueError as e:
+            abort(status.HTTP_400_BAD_REQUEST, {'message': str(e)})
 
     @app.route('/contracts')
     @jwt_required()
