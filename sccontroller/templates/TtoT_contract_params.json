@@ -1,0 +1,14 @@
+[
+  {
+    "name": "creator",
+    "type": "address"
+  },
+  {
+    "name": "ERC_contract",
+    "type": "address"
+  },
+  {
+    "name": "refund",
+    "type": "address"
+  }
+]
