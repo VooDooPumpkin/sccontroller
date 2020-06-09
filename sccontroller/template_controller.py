@@ -26,7 +26,7 @@ def add_template(name, description, sol_filename, contract_name, creator_guide_f
                  parameters_list, id=None, exist=False)
         message = "Template was successfully added"
     except Exception as err:
-        message = err
+        message = " Error: parameters are invalid or this template already exists"
     finally:
         return message
 
@@ -39,7 +39,7 @@ def add_default_templates():
     users_guide_filename = "TtoT_contract_uguide.json"
     statuses_list_filename = "TtoT_contract_statuses.json"
     parameters_list_filename = "TtoT_contract_params.json"
-    add_template(name, description, sol_filename, contract_name, creator_guide_filename,
+    return add_template(name, description, sol_filename, contract_name, creator_guide_filename,
                  users_guide_filename, statuses_list_filename, parameters_list_filename)
 
 

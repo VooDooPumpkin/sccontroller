@@ -4,7 +4,7 @@ import copy
 import sqlite3
 from datetime import timedelta
 from threading import Thread
-from flask import json, abort, request, g
+from flask import json, abort, request, g, Response
 from flask_api import FlaskAPI, status, exceptions
 from flask_jwt import JWT, jwt_required
 from werkzeug.security import check_password_hash
@@ -61,12 +61,16 @@ def create_app(test_cfg=None):
 
     @app.errorhandler(400)
     def custom400(error):
-        response = json.dumps({'message': error.description['message']})
+        response = Response(
+            response=json.dumps({'error': error.description['message']}),
+            status=400, mimetype='application/json')
         return response
 
     @app.errorhandler(503)
     def custom503(error):
-        response = json.dumps({'message': error.description['message']})
+        response = Response(
+            response=json.dumps({'error': error.description['message']}),
+            status=503, mimetype='application/json')
         return response
 
     @app.route('/templates')
@@ -116,8 +120,11 @@ def create_app(test_cfg=None):
         template_id -- id of the template
         parameters -- params dict key=value (keys as keys from templates parameters_list)
         """
+
         try:
             data = request.get_json(True)
+            if not 'template_id' in data or not 'parameters' in data:
+                abort(status.HTTP_400_BAD_REQUEST, {'message': "invalid parameters for request"})
             scc = SCContoller.get_scc()
 
             contract = scc.generate(data['template_id'], data['parameters'])
@@ -161,7 +168,8 @@ def create_app(test_cfg=None):
 
         try:
             data = request.get_json(True)
-
+            if not 'ids' in data:
+                abort(status.HTTP_400_BAD_REQUEST, {'message': "invalid parameters for request"})
             contracts = [Contract.by_id(id) for id in data['ids']]
 
             return [{

@@ -18,6 +18,8 @@ class SCContoller:
             raise ConnectionError("Can not connect to Node '{}'".format(node))
         try:
             self.w3.eth.defaultAccount = self.w3.toChecksumAddress(defaul_account)
+            if self.w3.toChecksumAddress(defaul_account) not in self.w3.eth.accounts:
+                raise ValueError("Invalid account address '{}'".format(defaul_account))
         except ValueError:
             raise ValueError("Invalid account address '{}'".format(defaul_account))
         self.templates_dir = root_path.replace('\\', '/') + '/templates'
@@ -47,29 +49,31 @@ class SCContoller:
             if ptype.lower() == 'address':
                 try:
                     parameters[pname] = self.w3.toChecksumAddress(parameters[pname])
-                finally:
-                    pass
+                except:
+                    raise ValueError("Wrong value for address type '{}'".format(parameters[pname]))
             elif ptype.lower() == 'string':
                 try:
                     parameters[pname] = self.w3.toText(parameters[pname])
-                finally:
-                    pass
+                except:
+                    raise ValueError("Wrong value for string type '{}'".format(parameters[pname]))
             elif ptype.lower() == 'bytes':
                 try:
                     parameters[pname] = self.w3.toBytes(parameters[pname])
-                finally:
-                    pass
+                except:
+                    raise ValueError("Wrong value for bytes type '{}'".format(parameters[pname]))
             elif 'uint' in ptype.lower():
                 try:
                     parameters[pname] = self.w3.toInt(parameters[pname])
+                except:
+                    raise ValueError("Wrong value for uint type '{}'".format(parameters[pname]))
                 finally:
                     if parameters[pname] < 0:
                         raise ValueError("Wrong value for uint type '{}'".format(parameters[pname]))
             elif 'int' in ptype.lower():
                 try:
                     parameters[pname] = self.w3.toInt(parameters[pname])
-                finally:
-                    pass
+                except:
+                    raise ValueError("Wrong value for int type '{}'".format(parameters[pname]))
 
         contract = Contract(template_id, contract[identifier]['bin'], contract[identifier]['abi'], parameters=parameters)
 
