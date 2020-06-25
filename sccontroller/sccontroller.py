@@ -11,10 +11,10 @@ class SCContoller:
 
     def __init__(self, node, defaul_account, root_path):
         """Constructor"""
-        self.w3 = Web3(Web3.HTTPProvider(node))
         try:
+            self.w3 = Web3(Web3.HTTPProvider(node))
             self.w3.eth.blockNumber
-        except requests.exceptions.InvalidSchema:
+        except (requests.exceptions.InvalidSchema, requests.exceptions.ConnectionError):
             raise ConnectionError("Can not connect to Node '{}'".format(node))
         try:
             self.w3.eth.defaultAccount = self.w3.toChecksumAddress(defaul_account)
