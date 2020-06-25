@@ -6,7 +6,7 @@ from datetime import timedelta
 from threading import Thread
 from flask import json, abort, request, g, Response
 from flask_api import FlaskAPI, status, exceptions
-from flask_jwt import JWT, jwt_required
+from flask_jwt import JWT, jwt_required, current_identity
 from werkzeug.security import check_password_hash
 from solcx import set_solc_version, get_installed_solc_versions, install_solc
 from .sccontroller import SCContoller
@@ -127,7 +127,7 @@ def create_app(test_cfg=None):
                 abort(status.HTTP_400_BAD_REQUEST, {'message': "invalid parameters for request"})
             scc = SCContoller.get_scc()
 
-            contract = scc.generate(data['template_id'], data['parameters'])
+            contract = scc.generate(data['template_id'], data['parameters'], current_identity)
             if scc.w3.eth.getBalance(scc.w3.eth.defaultAccount) < scc.deploy_gas_cost(contract):
                 abort(status.HTTP_503_SERVICE_UNAVAILABLE, {'message': 'Not enough gas in system to deploy'})
             scc.deploy(contract)
@@ -144,7 +144,7 @@ def create_app(test_cfg=None):
         """Return contracts info"""
 
         try:
-            contracts = Contract.all()
+            contracts = Contract.all(current_identity)
 
             return [{
                 'id': contract.id,
@@ -170,7 +170,7 @@ def create_app(test_cfg=None):
             data = request.get_json(True)
             if not 'ids' in data:
                 abort(status.HTTP_400_BAD_REQUEST, {'message': "invalid parameters for request"})
-            contracts = [Contract.by_id(id) for id in data['ids']]
+            contracts = [Contract.by_id(id, current_identity) for id in data['ids']]
 
             return [{
                 'id': contract.id,
@@ -193,7 +193,7 @@ def create_app(test_cfg=None):
        """
 
         try:
-            contract = Contract.by_id(id)
+            contract = Contract.by_id(id, current_identity)
 
             return {
                 'id': contract.id,
@@ -215,7 +215,7 @@ def create_app(test_cfg=None):
         id -- id of the contract
         """
         try:
-            SCContoller.get_scc().destruct(Contract.by_id(id))
+            SCContoller.get_scc().destruct(Contract.by_id(id, current_identity))
 
             return '', status.HTTP_204_NO_CONTENT
         except KeyError as e:
@@ -230,7 +230,7 @@ def create_app(test_cfg=None):
         status = event['args']['cur_status']
         address = event['address']
         try:
-            contract = Contract.by_address(address)
+            contract = Contract.by_address(address, current_identity)
             contract.set_status(status)
         except (KeyError, ReferenceError):
             pass

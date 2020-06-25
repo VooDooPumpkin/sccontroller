@@ -32,7 +32,7 @@ class SCContoller:
 
         return g.scc
 
-    def generate(self, template_id, parameters):
+    def generate(self, template_id, parameters, user):
         template = Template.by_id(template_id)
         contract = compile_files([os.path.normpath(self.templates_dir + '/' + template.filename)])
         identifier = '{}:{}'.format(self.templates_dir + '/' + template.filename, template.contract_name)
@@ -75,7 +75,7 @@ class SCContoller:
                 except:
                     raise ValueError("Wrong value for int type '{}'".format(parameters[pname]))
 
-        contract = Contract(template_id, contract[identifier]['bin'], contract[identifier]['abi'], parameters=parameters)
+        contract = Contract(template_id, contract[identifier]['bin'], contract[identifier]['abi'], parameters=parameters, user=user)
 
         return contract
 

@@ -16,7 +16,7 @@ class Contract:
                 return decorated(contract, *args, **kwargs)
             return wrapper
 
-    def __init__(self, template_id, binary_code, abi, parameters, address=None, id=None, exist=False, ):
+    def __init__(self, template_id, binary_code, abi, parameters, address=None, id=None, user=None, exist=False ):
         """The default constructor"""
         self.__id = id
         self.__template = Template.by_id(template_id)
@@ -24,20 +24,21 @@ class Contract:
         self.__abi = abi
         self.__parameters = parameters
         self.__address = address
+        print(user)
         if not exist:
             db_cur = db.get_db().cursor()
             db_cur.execute(
-                'INSERT INTO contract (template_id, binary_code, abi, parameters) VALUES (?, ?, ?, ?)',
-                (template_id, binary_code, json.dumps(abi), json.dumps(parameters))
+                'INSERT INTO contract (template_id, binary_code, abi, parameters, user_id) VALUES (?, ?, ?, ?, ?)',
+                (template_id, binary_code, json.dumps(abi), json.dumps(parameters), user.id)
             )
             self.__id = db_cur.lastrowid
             db.get_db().commit()
 
 
     @staticmethod
-    def by_address(address):
+    def by_address(address, user):
         contract = db.get_db().execute(
-            'SELECT * FROM contract WHERE address=(?)',
+            'SELECT * FROM contract WHERE address=(?)' + ' AND user_id=' + str(user.id) if user else '',
             (address, )
         ).fetchone()
         if contract == None:
@@ -47,9 +48,9 @@ class Contract:
                         json.loads(contract['parameters']), address, contract['id'], exist=True)
 
     @staticmethod
-    def by_id(id):
+    def by_id(id, user=None):
         contract = db.get_db().execute(
-            'SELECT * FROM contract WHERE id=?',
+            'SELECT * FROM contract WHERE id=?' + ' AND user_id=' + str(user.id) if user else '',
             (id,)
         ).fetchone()
         if contract == None:
@@ -59,9 +60,9 @@ class Contract:
                         json.loads(contract['parameters']), contract['address'], id, exist=True)
 
     @staticmethod
-    def all():
+    def all(user=None):
         contracts = db.get_db().execute(
-            'SELECT * FROM contract'
+            'SELECT * FROM contract' + ' WHERE user_id=' + str(user.id) if user else ''
         ).fetchall()
         if contracts == None:
             raise KeyError("Contracts don't exist")

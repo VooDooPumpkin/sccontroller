@@ -16,6 +16,7 @@ CREATE TABLE template (
 
 CREATE TABLE contract (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
   template_id INTEGER NOT NULL,
   parameters json,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -23,6 +24,7 @@ CREATE TABLE contract (
   abi json NOT NULL,
   address TEXT,
   status_id INTEGER NOT NULL DEFAULT 0,
+  FOREIGN KEY (user_id) REFERENCES user (id),
   FOREIGN KEY (template_id) REFERENCES template (id)
 );
 
