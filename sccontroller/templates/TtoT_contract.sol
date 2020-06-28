@@ -12,10 +12,6 @@ contract TokToTokContract is Ownable {
 	uint256 private _creator_token;
 	uint256 private _buyer_token;
 	uint256 private _status;
-
-	function show_fields() public view returns(address, uint256, address, uint256, uint256) { 
-		return(_creator, _creator_token, _buyer, _buyer_token, _status);
-	}
 	
 	event StatusChanged(uint256 indexed last_status, uint256 indexed cur_status);
 	
