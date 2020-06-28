@@ -38,7 +38,7 @@ class Contract:
     @staticmethod
     def by_address(address, user):
         contract = db.get_db().execute(
-            'SELECT * FROM contract WHERE address=(?)' + ' AND user_id=' + str(user.id) if user else '',
+            'SELECT * FROM contract WHERE address=?' + ' AND user_id=' + str(user.id) if user else '',
             (address, )
         ).fetchone()
         if contract == None:
