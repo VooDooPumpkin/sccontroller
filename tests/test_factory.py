@@ -1,5 +1,6 @@
 import os
 import json
+import pytest
 from sccontroller import create_app
 
 with open(os.path.join(os.path.dirname(__file__), 'config.json'), 'rb') as f:
@@ -11,8 +12,3 @@ def test_config():
                        'NODE': _conf['GANACHE'],
                        'DEFAULT_ACCOUNT': _conf['DEFAULT_ACCOUNT']
                        }).testing
-
-
-# def test_hello(client):
-#     response = client.get('/hello')
-#     assert response.data == b'Hello, World!'

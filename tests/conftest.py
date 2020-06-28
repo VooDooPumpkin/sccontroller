@@ -55,8 +55,33 @@ class AuthActions(object):
             json={'username': username, 'password': password},
         )
 
+class AuthedClient(object):
+    def __init__(self, client):
+        self._client = client
+        self._token = json.loads(self._client.post(
+            '/auth',
+            json={'username': "test", 'password': "test"},
+        ).data)['access_token']
+
+    def get(self, url):
+        return self._client.get(
+            url,
+            headers={"Authorization": "JWT " + self._token},
+        )
+
+    def post(self, url, body):
+        return self._client.post(
+            url,
+            headers={"Authorization": "JWT " + self._token},
+            json=body,
+        )
+
 
 
 @pytest.fixture
 def auth(client):
     return AuthActions(client)
+
+@pytest.fixture
+def authed_client(client):
+    return AuthedClient(client)
