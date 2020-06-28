@@ -230,7 +230,7 @@ def create_app(test_cfg=None):
         status = event['args']['cur_status']
         address = event['address']
         try:
-            contract = Contract.by_address(address, current_identity)
+            contract = Contract.by_address(address)
             contract.set_status(status)
         except (KeyError, ReferenceError):
             pass

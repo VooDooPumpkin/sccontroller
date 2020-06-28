@@ -24,7 +24,6 @@ class Contract:
         self.__abi = abi
         self.__parameters = parameters
         self.__address = address
-        print(user)
         if not exist:
             db_cur = db.get_db().cursor()
             db_cur.execute(
@@ -36,9 +35,9 @@ class Contract:
 
 
     @staticmethod
-    def by_address(address, user):
+    def by_address(address, user=None):
         contract = db.get_db().execute(
-            'SELECT * FROM contract WHERE address=?' + ' AND user_id=' + str(user.id) if user else '',
+            'SELECT * FROM contract WHERE address=?' + (' AND user_id=' + str(user.id) if user else ''),
             (address, )
         ).fetchone()
         if contract == None:
@@ -50,7 +49,7 @@ class Contract:
     @staticmethod
     def by_id(id, user=None):
         contract = db.get_db().execute(
-            'SELECT * FROM contract WHERE id=?' + ' AND user_id=' + str(user.id) if user else '',
+            'SELECT * FROM contract WHERE id=?' + (' AND user_id=' + str(user.id) if user else ''),
             (id,)
         ).fetchone()
         if contract == None:
@@ -62,7 +61,7 @@ class Contract:
     @staticmethod
     def all(user=None):
         contracts = db.get_db().execute(
-            'SELECT * FROM contract' + ' WHERE user_id=' + str(user.id) if user else ''
+            'SELECT * FROM contract' + (' WHERE user_id=' + str(user.id) if user else '')
         ).fetchall()
         if contracts == None:
             raise KeyError("Contracts don't exist")
@@ -75,7 +74,7 @@ class Contract:
     def delete(id):
         db_cur = db.get_db().cursor()
         db_cur.execute(
-            'DELETE FROM contract WHERE id=(?)',
+            'DELETE FROM contract WHERE id=?',
             (id, )
         )
         db.get_db().commit()
